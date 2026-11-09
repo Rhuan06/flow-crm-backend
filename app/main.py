@@ -3,12 +3,29 @@ from app.core.config import settings
 from app.api.v1.endpoints import auth
 from fastapi.responses import JSONResponse
 from app.api.v1.endpoints import auth, clients, leads, opportunities, dashboard
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI(
     title="FlowCRM API",
     description="API para o sistema de gestaão de clientes e vendas FlowCRM",
     version='1.0.0'
 )
+
+# Configuração do CORS
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# ---------------------------
 
 @app.get("/", tags=["Health Check"])
 def read_root():
