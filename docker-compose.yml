@@ -1,0 +1,19 @@
+
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: flowcrm_db
+    restart: always
+    environment:
+      POSTGRES_USER: flowcrm_user
+      POSTGRES_PASSWORD: flowcrm_password
+      POSTGRES_DB: flowcrm_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
