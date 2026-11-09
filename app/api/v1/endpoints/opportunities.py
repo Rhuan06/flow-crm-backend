@@ -6,10 +6,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.models.opportunity import Opportunity
+from app.models.opportunity import Opportunity, OpportunityStatus
 from app.models.client import Client
 from app.models.user import User
 from app.schemas.opportunity import OpportunityCreate,OpportunityResponse, OpportunityUpdate
+
 
 from app.api.deps import get_current_user
 
@@ -90,6 +91,16 @@ def update_opportunity(
             status_code=404,
             detail="Oportunidade não encontrada."
         )
+
+    # REGRA DE NEGÓCIO: Bloqueio de Transição
+    #se a oportunidade já estiver em status "GANHA" ou "PERDIDA", não permitir alterações
+    if opportunity.status in [OpportunityStatus.WON, OpportunityStatus.LOST]:
+        # e se o usuário tentar alterar o status, lançar uma exceção
+        if opp_in.status and opp_in.status != opportunity.status:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Não é permitido alterar o status de uma oportunidade já finalizada ({opportunity.status.value})."
+            )
 
     update_data = opp_in.model_dump(exclude_unset=True)
 
