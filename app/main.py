@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.core.config import settings
 from app.api.v1.endpoints import auth
 from fastapi.responses import JSONResponse
-from app.api.v1.endpoints import auth, clients, leads, opportunities
+from app.api.v1.endpoints import auth, clients, leads, opportunities, dashboard
 
 app = FastAPI(
     title="FlowCRM API",
@@ -52,4 +52,10 @@ app.include_router(
     opportunities.router, 
     prefix=f"{settings.API_V1_STR}/opportunities", 
     tags=["Oportunidades"]
+)
+
+app.include_router(
+    dashboard.router,
+    prefix=f"{settings.API_V1_STR}/dashboard",
+    tags=["Dashboard"]
 )
