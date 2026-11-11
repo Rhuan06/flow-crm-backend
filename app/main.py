@@ -16,6 +16,7 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000"
+    # TODO: Adicionar o domínio de produção após o deploy
 ]
 
 app.add_middleware(
