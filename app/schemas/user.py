@@ -26,3 +26,11 @@ class UserResponse(UserBase):
 
     class Config:
         from_attributes = True  # Permite mapeamento direto a partir do SQLAlchemy
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
