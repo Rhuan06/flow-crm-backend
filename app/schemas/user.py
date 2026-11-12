@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr
 from app.models.user import UserRole
 
+
 # Schema base com campos comuns de utilizador
 class UserBase(BaseModel):
     name: str
@@ -10,8 +11,10 @@ class UserBase(BaseModel):
     role: UserRole = UserRole.SELLER
 
 
-# Schema para recepção de dados no Cadastro (Exige a senha)
-class UserCreate(UserBase):
+# Schema para recepção de dados no Cadastro Público (bloqueia o envio de 'role')
+class UserCreate(BaseModel):
+    name: str
+    email: EmailStr
     password: str
 
 

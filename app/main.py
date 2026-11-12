@@ -1,22 +1,42 @@
+
 from fastapi import FastAPI
-from app.core.config import settings
-from app.api.v1.endpoints import auth
 from fastapi.responses import JSONResponse
-from app.api.v1.endpoints import auth, clients, leads, opportunities, dashboard
 from fastapi.middleware.cors import CORSMiddleware
+
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
+from app.core.config import settings
+from app.api.v1.endpoints import (
+    auth,
+    clients,
+    leads,
+    opportunities,
+    dashboard,
+)
+from app.api.v1.endpoints.auth import limiter
 
 
 app = FastAPI(
     title="FlowCRM API",
-    description="API para o sistema de gestaão de clientes e vendas FlowCRM",
-    version='1.0.0'
+    description="API para o sistema de gestão de clientes e vendas FlowCRM",
+    version="1.0.0",
 )
+
+
+# Configuração do Rate Limiting (SlowAPI)
+app.state.limiter = limiter
+app.add_exception_handler(
+    RateLimitExceeded,
+    _rate_limit_exceeded_handler,
+)
+
 
 # Configuração do CORS
 origins = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
-    # TODO: Adicionar o domínio de produção após o deploy
+    "http://127.0.0.1:3000",
+    # TODO: Adicionar o domínio de produção após o deploy.
 ]
 
 app.add_middleware(
@@ -26,15 +46,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# ---------------------------
 
+
+# Health Check
 @app.get("/", tags=["Health Check"])
 def read_root():
     return JSONResponse(
         content={
-            "message": "Bem-vindo á API do FlowCRM! O sistema está online."
+            "message": "Bem-vindo à API do FlowCRM! O sistema está online."
         }
     )
+
 
 @app.get("/api/v1/health", tags=["Health Check"])
 def health_check():
@@ -46,34 +68,34 @@ def health_check():
     )
 
 
-app.include_router(
-    auth.router, 
-    prefix=f"{settings.API_V1_STR}/auth", 
-    tags=["Autenticação"]
-)
-
-
+# Rotas da API
 
 app.include_router(
-    clients.router, 
-    prefix=f"{settings.API_V1_STR}/clients", 
-    tags=["Clientes"]
+    auth.router,
+    prefix=f"{settings.API_V1_STR}/auth",
+    tags=["Autenticação"],
 )
 
 app.include_router(
-    leads.router, 
-    prefix=f"{settings.API_V1_STR}/leads", 
-    tags=["Leads"]
+    clients.router,
+    prefix=f"{settings.API_V1_STR}/clients",
+    tags=["Clientes"],
 )
 
 app.include_router(
-    opportunities.router, 
-    prefix=f"{settings.API_V1_STR}/opportunities", 
-    tags=["Oportunidades"]
+    leads.router,
+    prefix=f"{settings.API_V1_STR}/leads",
+    tags=["Leads"],
+)
+
+app.include_router(
+    opportunities.router,
+    prefix=f"{settings.API_V1_STR}/opportunities",
+    tags=["Oportunidades"],
 )
 
 app.include_router(
     dashboard.router,
     prefix=f"{settings.API_V1_STR}/dashboard",
-    tags=["Dashboard"]
+    tags=["Dashboard"],
 )
